@@ -1,0 +1,53 @@
+# База данных
+CREATE TABLE public.order (
+	order_id serial NOT NULL,
+	user_id int4 NOT NULL,
+	products varchar(100) NOT NULL,
+	order_price numeric(5, 2) NOT NULL,
+	datetime timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	state_id int NOT NULL,
+	discount int DEFAULT 0 NULL,
+	discount_price numeric(8, 2) GENERATED ALWAYS AS ((order_price / 100::numeric * discount)) STORED null,
+	comment_id int4 NOT null,
+	CONSTRAINT order_pkey PRIMARY KEY (order_id)
+);
+
+CREATE TABLE public.buyer (
+	buyer_id serial NOT NULL,
+	last_name varchar(20) NOT NULL,
+	f_name varchar(20) NOT NULL,
+	s_name varchar(20),
+	sex varchar(10) NOT NULL,
+	mobile char(13),
+	email varchar(50),
+	card_id int default NULL,
+	CONSTRAINT buyer_pkey PRIMARY KEY (buyer_id)
+);
+
+CREATE TABLE public.products_group (
+	group_id serial NOT NULL,
+	group_name varchar(20) NOT NULL,
+	user_update int NOT NULL,
+	date_update timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	CONSTRAINT group_pkey PRIMARY KEY (group_id)
+);
+
+CREATE TABLE public.status (
+	status_id serial NOT NULL,
+	status_name varchar(20) NOT NULL,
+	CONSTRAINT status_pkey PRIMARY KEY (status_id)
+);
+
+CREATE TABLE public.comments (
+	comment_id serial NOT NULL,
+	order_id int NOT NULL,
+	comment varchar(512),
+	rating int DEFAULT 5 CHECK (rating in (1,2,3,4,5)) NOT NULL,
+	CONSTRAINT comment_pkey PRIMARY KEY (comment_id)
+);
+
+ALTER TABLE public.order ADD CONSTRAINT fk_client_order FOREIGN KEY (user_id) REFERENCES public.buyer(buyer_id);
+ALTER TABLE public.order ADD CONSTRAINT fk_state_order FOREIGN KEY (state_id) REFERENCES public.status(status_id);
+ALTER TABLE public.order ADD CONSTRAINT fk_comment_order FOREIGN KEY (comment_id) REFERENCES public.comments(comment_id);
+
+
